@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Marketing · Viral Shredder{% endblock %}
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+  <div>
+    <h1 class="text-3xl font-black text-white">Directory submissions</h1>
+    <p class="text-slate-400 mt-1">Autonomously submit Viral Shredder to {{ directories|length }} startup &amp; AI-tool directories.</p>
+  </div>
+  <div class="flex gap-3">
+    <button id="runBtn" class="px-5 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition disabled:opacity-50">
+      Run submissions
+    </button>
+    <button id="dryBtn" class="px-5 py-3 rounded-xl glass hover:bg-white/10 text-white font-semibold transition disabled:opacity-50">
+      Dry run
+    </button>
+  </div>
+</div>
+
+<div id="runStatus" class="hidden mt-6 px-5 py-4 rounded-2xl glass text-sm"></div>
+
+<div class="mt-8">
+  <h2 class="text-lg font-bold text-white mb-4">Directories</h2>
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    {% for d in directories %}
+    <div class="glass rounded-xl p-4">
+      <div class="flex items-center justify-between">
+        <span class="font-semibold text-white text-sm">{{ d.name }}</span>
+        <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase
+          {{ 'bg-emerald-500/15 text-emerald-300' if d.mode == 'post' else 'bg-sky-500/15 text-sky-300' }}">
+          {{ d.mode }}
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">{{ d.notes }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="mt-10">
+  <h2 class="text-lg font-bold text-white mb-4">Submission log</h2>
+  {% if submissions %}
+  <div class="glass rounded-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="text-left text-xs uppercase text-slate-500 border-b border-white/10">
+        <tr><th class="px-4 py-3">Directory</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">When</th></tr>
+      </thead>
+      <tbody>
+        {% for s in submissions %}
+        <tr class="border-b border-white/5">
+          <td class="px-4 py-3 font-medium text-white">{{ s.directory }}</td>
+          <td class="px-4 py-3">
+            <span class="text-xs px-2 py-0.5 rounded font-semibold
+              {{ 'bg-emerald-500/15 text-emerald-300' if s.status == 'submitted' else '' }}
+              {{ 'bg-amber-500/15 text-amber-300' if s.status in ('manual', 'dry_run') else '' }}
+              {{ 'bg-red-500/15 text-red-300' if s.status in ('failed', 'error') else '' }}">
+              {{ s.status }}
+            </span>
+          </td>
+          <td class="px-4 py-3 text-slate-500">{{ s.submitted_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-slate-500 text-sm">Nothing submitted yet. Run the pass above, or from the terminal: <code class="text-orange-400">python scripts/submit_directories.py</code></p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const runBtn = document.getElementById('runBtn');
+const dryBtn = document.getElementById('dryBtn');
+const status = document.getElementById('runStatus');
+
+async function run(dry) {
+  [runBtn, dryBtn].forEach(b => { b.disabled = true; });
+  status.classList.remove('hidden');
+  status.textContent = dry ? 'Dry run — preparing payloads…' : 'Submitting… this takes about 1s per directory.';
+  try {
+    const body = new URLSearchParams({ dry_run: dry ? '1' : '0' });
+    const r = await fetch('/api/marketing/run', { method: 'POST', body });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'run failed');
+    status.innerHTML = '✓ Done — <b>' + d.total + '</b> directories: ' +
+      Object.entries(d.by_status).map(([k, v]) => k + ': <b>' + v + '</b>').join(' · ') +
+      '. Reload the page to see the log.';
+  } catch (e) {
+    status.textContent = 'Error: ' + e.message;
+  } finally {
+    [runBtn, dryBtn].forEach(b => { b.disabled = false; });
+  }
+}
+runBtn.addEventListener('click', () => run(false));
+dryBtn.addEventListener('click', () => run(true));
+</script>
+{% endblock %}

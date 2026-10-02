@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Pricing · Viral Shredder{% endblock %}
+{% block content %}
+<div class="text-center py-12">
+  <h1 class="text-4xl font-black text-white">Simple pricing</h1>
+  <p class="mt-3 text-slate-400">Start free. Upgrade with USDT whenever you need more.</p>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+  {% for pid, p in plans.items() %}
+  <div class="glass rounded-3xl p-8 relative {{ 'border-orange-500/40' if pid == 'pro' else '' }}">
+    {% if pid == 'pro' %}
+    <span class="absolute -top-3 left-8 px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-bold">Most popular</span>
+    {% endif %}
+    <h2 class="text-xl font-bold text-white">{{ p.name }}</h2>
+    <p class="mt-4 flex items-baseline gap-1">
+      <span class="text-5xl font-black text-white">${{ p.price_usd }}</span>
+      <span class="text-slate-400">/month</span>
+    </p>
+    <p class="text-sm text-slate-500 mt-1">{{ p.stripe_like_description }}</p>
+    <ul class="mt-6 space-y-3 text-sm text-slate-300">
+      <li class="flex gap-2.5"><span class="text-emerald-400">✓</span> {{ p.credits_per_month }} videos shredded per month</li>
+      <li class="flex gap-2.5"><span class="text-emerald-400">✓</span> Up to {{ p.max_input_chars|number_format(0, ',') }} chars of source text</li>
+      {% for o, label in [('seo_article','SEO article generation'), ('x_thread','X thread generation'), ('linkedin_post','LinkedIn post generation')] %}
+      <li class="flex gap-2.5 {{ '' if o in p.outputs else 'text-slate-600' }}">
+        <span>{{ '✓' if o in p.outputs else '—' }}</span> {{ label }}
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="mt-8">
+      {% if pid == 'free' %}
+      <a href="/signup" class="block text-center py-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold transition">Get started free</a>
+      {% else %}
+      <a href="/upgrade" class="block text-center py-3.5 rounded-xl bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-90 text-white font-bold transition">
+        Upgrade to Pro — $9 USDT
+      </a>
+      <p class="text-center text-xs text-slate-500 mt-3">Pay with USDT (TRC20 / BEP20) or Binance Pay. Manual support on WhatsApp / Telegram.</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

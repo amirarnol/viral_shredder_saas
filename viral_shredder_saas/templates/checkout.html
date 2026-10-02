@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Upgrade to Pro · Viral Shredder{% endblock %}
+{% block content %}
+{% set o = order %}
+<div class="max-w-3xl mx-auto py-8">
+  <h1 class="text-3xl font-black text-white">Upgrade to Pro</h1>
+  <p class="text-slate-400 mt-2">Pay <span class="font-bold text-orange-400">${{ '%.2f'|format(o.amount_usd) }} {{ o.currency }}</span> to one of the deposit methods below. Your account upgrades the moment the payment lands.</p>
+
+  {% if o.status == 'paid' %}
+  <div class="mt-6 px-5 py-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-semibold">
+    ✓ Payment confirmed — your account is now Pro. <a href="/dashboard" class="underline">Back to the shredder</a>.
+  </div>
+  {% else %}
+  <div class="glass rounded-2xl p-6 mt-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold">Order reference</p>
+        <p class="font-mono text-white">{{ o.order_ref }}</p>
+      </div>
+      <span id="statusPill" class="px-3 py-1.5 rounded-full bg-amber-500/15 text-amber-300 text-xs font-bold">AWAITING PAYMENT</span>
+    </div>
+
+    <div class="mt-6">
+      <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Amount due</p>
+      <div class="inline-flex items-baseline gap-1">
+        <span class="text-4xl font-black text-white">{{ '%.2f'|format(o.amount_crypto) }}</span>
+        <span class="text-slate-400 font-semibold">{{ o.currency }}</span>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Pay to — {{ o.network }}</p>
+      <div class="px-4 py-3.5 rounded-xl bg-ink-800 border border-white/10 flex items-center justify-between gap-3">
+        <code class="font-mono text-sm text-white break-all">{{ o.address }}</code>
+        <button id="copyBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-white">Copy</button>
+      </div>
+      <p class="text-xs text-slate-500 mt-2">{{ o.note }}</p>
+    </div>
+
+    <div class="mt-6 flex flex-wrap gap-3 text-sm">
+      {% if settings.payment_demo_mode %}
+      <button id="confirmBtn" class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
+        I've paid — verify now
+      </button>
+      {% else %}
+      <form action="/api/payment/{{ o.payment_id }}/confirm" method="post">
+        <button class="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition">
+          Confirm payment (manual)
+        </button>
+      </form>
+      {% endif %}
+      <a href="{{ whatsapp_link }}" target="_blank" rel="noopener"
+         class="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold transition">Paid via WhatsApp support</a>
+      <a href="{{ telegram_link }}" target="_blank" rel="noopener"
+         class="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold transition">Paid via Telegram support</a>
+    </div>
+
+    {% if settings.payment_demo_mode %}
+    <p class="mt-5 text-xs text-slate-600">
+      Demo mode is on: orders auto-confirm about {{ settings.payment_demo_confirm_after }}s after being created, or use "verify now".
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="glass rounded-2xl p-6 mt-5">
+    <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Other deposit methods</p>
+    <div class="grid sm:grid-cols-2 gap-3">
+      {% for n in (networks or []) %}
+      <a href="/upgrade?network={{ n.id }}"
+         class="px-4 py-3 rounded-xl bg-ink-800 border border-white/10 hover:border-orange-500/30 text-sm text-slate-300 transition {{ 'ring-1 ring-orange-500/40' if n.id == o.network_id else '' }}">
+        <span class="font-semibold text-white block">{{ n.label }}</span>
+        <span class="font-mono text-xs text-slate-500 break-all">{{ n.address }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="glass rounded-2xl p-6 mt-5 text-sm text-slate-400">
+    <p class="font-semibold text-white mb-2">Need help with payment?</p>
+    <p>Message us directly — we confirm upgrades manually within minutes during support hours.</p>
+    <div class="flex flex-wrap gap-3 mt-3">
+      <a href="{{ whatsapp_link }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 font-semibold transition">WhatsApp +{{ settings.whatsapp_number }}</a>
+      <a href="{{ telegram_link }}" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 font-semibold transition">Telegram @{{ settings.telegram_username }}</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const pid = {{ order.payment_id }};
+const copyBtn = document.getElementById('copyBtn');
+const pill = document.getElementById('statusPill');
+
+if (copyBtn) {
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText('{{ order.address }}').then(() => {
+      copyBtn.textContent = '✓ Copied';
+      setTimeout(() => copyBtn.textContent = 'Copy', 1400);
+    });
+  });
+}
+
+async function check() {
+  try {
+    const r = await fetch(`/api/payment/${pid}/status`);
+    const d = await r.json();
+    if (d.status === 'paid') {
+      pill.textContent = 'PAID ✓';
+      pill.className = 'px-3 py-1.5 rounded-full bg-emerald-500/15 text-emerald-300 text-xs font-bold';
+      setTimeout(() => location.href = `/checkout/${pid}`, 900);
+      return false;
+    }
+  } catch (e) { /* retry next tick */ }
+  return true;
+}
+
+(async () => {
+  while (await check()) {
+    await new Promise(r => setTimeout(r, 4000));
+  }
+})();
+
+const confirmBtn = document.getElementById('confirmBtn');
+if (confirmBtn) {
+  confirmBtn.addEventListener('click', async () => {
+    confirmBtn.textContent = 'Verifying…';
+    confirmBtn.disabled = true;
+    try {
+      const r = await fetch(`/api/payment/${pid}/confirm`, { method: 'POST' });
+      const d = await r.json();
+      if (r.ok) location.href = `/checkout/${pid}`;
+      else { confirmBtn.textContent = 'Not confirmed yet — try again'; confirmBtn.disabled = false; }
+    } catch (e) { confirmBtn.textContent = 'Error — retry'; confirmBtn.disabled = false; }
+  });
+}
+</script>
+{% endblock %}

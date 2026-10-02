@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Result · Viral Shredder{% endblock %}
+{% block content %}
+{% set outputs = job.outputs | from_json %}
+{% set art = outputs.seo_article or {} %}
+{% set dir_attr = ' dir="rtl"' if (art.direction or (outputs.meta or {}).direction) == 'rtl' else '' %}
+<div>
+  <a href="/dashboard" class="text-sm text-slate-500 hover:text-slate-300">← back to dashboard</a>
+  <h1 class="text-2xl font-black text-white mt-3">{{ job.title }}</h1>
+  <div class="flex flex-wrap items-center gap-2 mt-2">
+    <span class="capitalize px-1.5 py-0.5 rounded bg-white/5 text-sm text-slate-400">{{ job.platform }}</span>
+    {% if art.tone_name or art.language_name %}
+    <span class="text-[10px] px-2 py-0.5 rounded bg-orange-500/15 text-orange-300 font-bold uppercase">
+      {{ art.tone_name }}{{ ' · ' if art.tone_name and art.language_name }}{{ art.language_name }}
+    </span>
+    {% endif %}
+    <a href="{{ job.source_url }}" target="_blank" rel="noopener" class="text-sm text-orange-400 hover:underline break-all">{{ job.source_url }}</a>
+  </div>
+</div>
+
+<div class="grid lg:grid-cols-2 gap-5 mt-8"{{ dir_attr }}>
+  {% if outputs.seo_article %}
+  {% set a = outputs.seo_article %}
+  <div class="glass rounded-2xl p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-white">📄 SEO Article</h3>
+      <button class="copyBtn px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-white"
+              data-text="{{ a.title }}&#10;&#10;{{ a.meta_description }}&#10;&#10;{% for s in a.sections %}{{ s.heading }}&#10;{% for p in s.paragraphs %}{{ p }}&#10;&#10;{% endfor %}{% endfor %}">Copy</button>
+    </div>
+    <p class="font-bold text-white text-lg leading-snug">{{ a.title }}</p>
+    <p class="text-sm text-slate-400 italic mt-3">{{ a.meta_description }}</p>
+    <div class="flex flex-wrap gap-2 mt-4">
+      <span class="text-xs px-2 py-1 rounded bg-orange-500/15 text-orange-300 font-medium">focus: {{ a.focus_keyword }}</span>
+      {% for k in a.secondary_keywords %}
+      <span class="text-xs px-2 py-1 rounded bg-white/5 text-slate-400">{{ k }}</span>
+      {% endfor %}
+      <span class="text-xs px-2 py-1 rounded bg-white/5 text-slate-400">{{ a.word_count }} words</span>
+    </div>
+    <div class="mt-6 space-y-5">
+      {% for s in a.sections %}
+      <div>
+        <h4 class="font-semibold text-orange-300">{{ s.heading }}</h4>
+        {% for p in s.paragraphs %}
+        <p class="mt-2 text-sm text-slate-300 leading-relaxed">{{ p }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="space-y-5">
+    {% if outputs.x_thread %}
+    {% set t = outputs.x_thread %}
+    <div class="glass rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-white">🧵 X Thread <span class="text-slate-500 font-normal">({{ t|length }} tweets)</span></h3>
+        <button class="copyBtn px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-white"
+                data-text="{{ t|join('&#10;&#10;') }}">Copy all</button>
+      </div>
+      <div class="space-y-3">
+        {% for tw in t %}
+        <div class="flex gap-3">
+          <span class="shrink-0 w-7 h-7 grid place-items-center rounded-full bg-white/10 text-xs font-bold text-slate-300">{{ loop.index }}</span>
+          <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{{ tw }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if outputs.linkedin_post %}
+    <div class="glass rounded-2xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold text-white">💼 LinkedIn Post</h3>
+        <button class="copyBtn px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-white"
+                data-text="{{ outputs.linkedin_post }}">Copy</button>
+      </div>
+      <p class="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{{ outputs.linkedin_post }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.copyBtn').forEach(b =>
+  b.addEventListener('click', () => {
+    navigator.clipboard.writeText(b.dataset.text).then(() => {
+      b.textContent = '✓ Copied';
+      setTimeout(() => b.textContent = 'Copy', 1400);
+    });
+  }));
+</script>
+{% endblock %}

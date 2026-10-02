@@ -1,0 +1,92 @@
+[
+  {
+    "name": "Product Hunt",
+    "submit_url": "https://www.producthunt.com/posts/new",
+    "mode": "get",
+    "notes": "Requires a logged-in account; schedule a launch day."
+  },
+  {
+    "name": "Toolify.ai",
+    "submit_url": "https://www.toolify.ai/submit",
+    "mode": "get",
+    "notes": "AI tool directory with a public submission form."
+  },
+  {
+    "name": "There's An AI For That",
+    "submit_url": "https://theresanaiforthat.com/submit-ai-tool/",
+    "mode": "get",
+    "notes": "Largest AI tool directory; manual review."
+  },
+  {
+    "name": "Futurepedia",
+    "submit_url": "https://www.futurepedia.io/submit-tool",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "AI Tool Guru",
+    "submit_url": "https://aitoolguru.com/submit-tool/",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "TopAI.tools",
+    "submit_url": "https://topai.tools/submit",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "JayDevs",
+    "submit_url": "https://jaydevs.com/submit-tool/",
+    "mode": "post",
+    "notes": "Developer-tools directory with a public form endpoint."
+  },
+  {
+    "name": "StartupBase",
+    "submit_url": "https://startupbase.io/submit",
+    "mode": "get",
+    "notes": "Startup directory."
+  },
+  {
+    "name": "BetaList",
+    "submit_url": "https://betalist.com/submit",
+    "mode": "get",
+    "notes": "Early-stage startup showcase; submit ahead of launch."
+  },
+  {
+    "name": "Launched!",
+    "submit_url": "https://launched.io/submit",
+    "mode": "get",
+    "notes": "Startup launch directory."
+  },
+  {
+    "name": "Awesome AI Tools",
+    "submit_url": "https://github.com/mahseema/awesome-ai-tools",
+    "mode": "get",
+    "notes": "Curated GitHub list; open a PR adding the tool."
+  },
+  {
+    "name": "AI Valley",
+    "submit_url": "https://aivalley.ai/submit/",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "ToolPilot",
+    "submit_url": "https://www.toolpilot.ai/submit",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "AIToptools",
+    "submit_url": "https://aitoptools.com/submit-tool/",
+    "mode": "get",
+    "notes": "AI tool directory."
+  },
+  {
+    "name": "Insidr",
+    "submit_url": "https://insidr.co/submit-tool/",
+    "mode": "get",
+    "notes": "Software reviews directory."
+  }
+]

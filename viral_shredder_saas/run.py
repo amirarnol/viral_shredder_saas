@@ -1,0 +1,14 @@
+"""Entry point: `python run.py` starts the app on http://127.0.0.1:8000"""
+
+import uvicorn
+
+from app.config import settings
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=False,
+        log_level="info",
+    )

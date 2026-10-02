@@ -1,0 +1,22 @@
+INFO:     Started server process [16524]
+INFO:     Waiting for application startup.
+2026-10-01 12:48:38,806 INFO viral_shredder | database ready; payment settlement loop started (demo=True)
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61711 - "GET /health HTTP/1.1" 200 OK
+2026-10-01 12:49:19,674 INFO httpx | HTTP Request: GET https://www.youtube.com/shorts/dQw4w9WgXcQ "HTTP/1.1 302 Found"
+2026-10-01 12:49:20,125 INFO httpx | HTTP Request: GET https://consent.youtube.com/m?continue=https%3A%2F%2Fwww.youtube.com%2Fshorts%2FdQw4w9WgXcQ%3Fcbrd%3D1&gl=CH&m=0&pc=yt&cm=2&hl=en&src=1 "HTTP/1.1 200 OK"
+2026-10-01 12:49:20,828 INFO httpx | HTTP Request: GET https://www.youtube.com/api/timedtext?v=dQw4w9WgXcQ&lang=en&fmt=json3 "HTTP/1.1 200 OK"
+2026-10-01 12:49:20,857 INFO viral_shredder | shred ok job=3 platform=youtube words=273
+INFO:     127.0.0.1:61723 - "POST /shred HTTP/1.1" 200 OK
+2026-10-01 12:49:21,469 INFO httpx | HTTP Request: GET https://www.youtube.com/shorts/dQw4w9WgXcQ "HTTP/1.1 302 Found"
+2026-10-01 12:49:21,946 INFO httpx | HTTP Request: GET https://consent.youtube.com/m?continue=https%3A%2F%2Fwww.youtube.com%2Fshorts%2FdQw4w9WgXcQ%3Fcbrd%3D1&gl=CH&m=0&pc=yt&cm=2&hl=en&src=1 "HTTP/1.1 200 OK"
+2026-10-01 12:49:22,600 INFO httpx | HTTP Request: GET https://www.youtube.com/api/timedtext?v=dQw4w9WgXcQ&lang=en&fmt=json3 "HTTP/1.1 200 OK"
+2026-10-01 12:49:22,631 INFO viral_shredder | shred ok job=4 platform=youtube words=357
+INFO:     127.0.0.1:61728 - "POST /shred HTTP/1.1" 200 OK
+2026-10-01 12:49:23,425 INFO httpx | HTTP Request: GET https://www.youtube.com/shorts/dQw4w9WgXcQ "HTTP/1.1 302 Found"
+2026-10-01 12:49:23,782 INFO httpx | HTTP Request: GET https://consent.youtube.com/m?continue=https%3A%2F%2Fwww.youtube.com%2Fshorts%2FdQw4w9WgXcQ%3Fcbrd%3D1&gl=CH&m=0&pc=yt&cm=2&hl=en&src=1 "HTTP/1.1 200 OK"
+2026-10-01 12:49:24,460 INFO httpx | HTTP Request: GET https://www.youtube.com/api/timedtext?v=dQw4w9WgXcQ&lang=en&fmt=json3 "HTTP/1.1 200 OK"
+2026-10-01 12:49:24,491 INFO viral_shredder | shred ok job=5 platform=youtube words=347
+INFO:     127.0.0.1:61733 - "POST /shred HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65161 - "GET /health HTTP/1.1" 200 OK
